@@ -1,0 +1,137 @@
+<style>
+.container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+}
+.tools{
+    margin-top: 5vw;
+    margin-bottom: 60px;
+    padding: 5vw;
+    width: 80vw;
+    min-height: 100vw;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16),0 2px 4px rgba(0, 0, 0, 0.23);
+}
+.title{
+    font-size: 18px;
+}
+.items{
+    height: 18vw;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 5vw;
+    padding-right: 5vw;
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+}
+.items image{
+    width: 14vw;
+    height: 14vw;
+    border-radius: 14vw;
+}
+.items-end{
+    margin-left: 5vw;
+}
+.items-end-title{
+    font-size: 14px;
+}
+.items-end-subtitle{
+    max-width: 50vw;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow:ellipsis;
+    font-size: 12px;
+}
+</style>
+<template>
+    <view class="container">
+        <view class="tools">
+            <view class="title">工具资源</view>
+            <repeat for="{{Tools}}" key="items" index="index" item="item">
+            <view class="items" data-appid="{{item.appid}}"  @tap="GoToOtherApp">
+                    <image lazy-load="{{ture}}" mode="scaleToFill" src="{{item.logo}}"/>
+                <view class="items-end">
+                    <view class="items-end-title">{{item.name}}</view>
+                    <view class="items-end-subtitle">{{item.Introduction}}</view>
+                </view>
+            </view>
+            </repeat>
+        </view>
+        <tabbar :tabbar="tabbar"></tabbar>
+    </view> 
+    
+</template>
+<script>
+  import wepy from 'wepy'
+  import tabbar from '../components/tabbar'
+
+  export default class Tools extends wepy.page {
+    config = {
+      navigationBarTitleText: '工具'
+    }
+
+    components = {
+      tabbar: tabbar
+    }
+
+    data = {
+      tabbar: {
+        color: '#e91e63',
+        list: [
+          {
+            icon: 'fa-home',
+            title: '首页',
+            path: 'index',
+            selected: false
+          },
+          {
+            icon: 'fa-briefcase',
+            title: '工具',
+            path: 'tools',
+            selected: true
+          }
+        ]
+      },
+      Tools: null
+    }
+
+    methods = {
+      GoToOtherApp(e) {
+        console.log(e.currentTarget.dataset.appid)
+        let appid = e.currentTarget.dataset.appid
+        wx.navigateToMiniProgram({
+          appId: appid,
+          success(res) {
+                // 打开成功
+          }
+        })
+      }
+    }
+
+    onLoad() {
+      console.log('onLoad')
+      wx.hideTabBar()
+    }
+    onShow () {
+      this.requestToolsList()
+    }
+    requestToolsList() {
+      let that = this
+      wx.request({
+        url: 'https://www.weixin6.com/web/wechatapp/airplane-flight/returnTools.php',
+        success(result) {
+          console.log(result)
+          setTimeout(() => {
+            that.Tools = result.data.data
+            that.$apply()
+          }, 500)
+          // that.setData({
+          //   Tools: result.data.data
+          // })
+        }
+      })
+    }
+  }
+</script>

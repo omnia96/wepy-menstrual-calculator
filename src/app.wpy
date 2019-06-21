@@ -1,0 +1,60 @@
+<style lang="less">
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+</style>
+
+<script>
+import wepy from 'wepy'
+export default class extends wepy.app {
+  config = {
+    pages: [
+      'pages/index',
+      'pages/tools',
+      'pages/step/step-1',
+      'pages/step/step-2',
+      'pages/step/step-3'
+    ],
+    window: {
+      backgroundTextStyle: 'light',
+      navigationBarBackgroundColor: '#fff',
+      navigationBarTitleText: 'WeChat',
+      navigationBarTextStyle: 'black'
+    },
+    tabBar: {
+      list: [
+        {
+          pagePath: 'pages/index',
+          text: ''
+        },
+        {
+          pagePath: 'pages/tools',
+          text: ''
+        }
+      ]
+    },
+    navigateToMiniProgramAppIdList: [
+      'wx8658d7592c771fe2',
+      'wx0d472828051d3e51',
+      'wx2c6faff0599f504c',
+      'wx7179cdde0aa60224',
+      'wx33f43967ea31e04e',
+      'wx8ae487c1839c9fee',
+      'wxc7b56d5f7d6c8898',
+      'wxff032bc0b05046bd'
+    ]
+  }
+
+  globalData = {
+    userInfo: null
+  }
+  onLaunch() {
+    wx.hideTabBar()
+  }
+}
+</script>

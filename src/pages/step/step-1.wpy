@@ -1,0 +1,117 @@
+<style>
+.container{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.progress-bar{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.progress-bar-title{
+  font-size: 10px;
+}
+.progress-bar-content{
+  margin-top: 2vw;
+  width: 45vw;
+  height: 1vw;
+  background: #eee;
+}
+.progress-bar-content-completed{
+  width: 15vw;
+  height: 1vw;
+  background: #e91e63;
+  animation: show 1s;
+}
+.step-title{
+  font-size: 16px;
+  margin-top: 5vw;
+  margin-bottom: 5vw;
+}
+.button-forget{
+  width: 80vw;
+  height: 10vw;
+  background-color: #9e9e9e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  margin-top: 10vw;
+}
+.button-next{
+  width: 80vw;
+  height: 10vw;
+  background-color: #e91e63;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  margin-top: 10vw;
+}
+.calender-step{
+  width: 90vw;
+  margin-bottom: 10vw;
+}
+@keyframes show {
+  from{
+    width: 0;
+  }
+  to{
+    width: 15vw;
+  }
+}
+</style>
+<template>
+  <view class="container">
+    <view class="progress-bar">
+      <view class="progress-bar-title">第1步,共3步</view>
+      <view class="progress-bar-content">
+        <view class="progress-bar-content-completed"></view>
+      </view>
+    </view>
+
+    <view class="step-title">您上一次月经何时开始？</view>
+
+    <calendar class="calender-step" :checks.sync="selectedDates" theme="blue" />
+
+    <!-- <view class="button-forget" @tap="tapNext">我不记得了</view> -->
+    
+    <view wx:if="{{MenstruationStart != null}}" @tap="tapNext" class="button-next">下一步</view>
+  
+    
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  import calendar from 'wepy-com-calendar'
+  export default class step1 extends wepy.page {
+    config = {
+      navigationBarTitleText: '开始'
+    }
+    components = {
+      calendar: calendar
+    }
+    data = {
+      MenstruationStart: null
+    }
+    methods = {
+      tapNext () {
+        let MenstruationStart = this.data.MenstruationStart
+        wx.navigateTo({
+          url: 'step-2?start=' + MenstruationStart
+        })
+      }
+    }
+    events = {
+      calendarAfterTapDay (date, event) {
+        this.MenstruationStart = date
+      }
+    }
+    onLoad () {}
+  }
+</script>

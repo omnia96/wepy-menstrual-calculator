@@ -1,0 +1,399 @@
+<style>
+.container{
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.calendar{
+  margin-top: 1vw;
+  width: 90vw;
+  min-height: 80vw;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16),0 2px 4px rgba(0, 0, 0, 0.23);
+}
+.calendar-title{
+  height: 10vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 5vw;
+  margin-right: 5vw;
+}
+.calendar-subtitle{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.calendar-content{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
+.calendar-content-items{
+  min-width: 14%;
+  height: 14vw;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.calendar-content-items-subtitle{
+  font-size: 10px;
+}
+.forward{
+  width: 10vw;
+  height: 10vw;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 24px;
+}
+.after{
+  width: 10vw;
+  height: 10vw;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 24px;
+}
+.tips{
+  width: 90vw;
+  font-size: 12px;
+  color: #e91e63;
+  margin-top: 5vw;
+  margin-bottom: 5vw;
+  text-align: center;
+}
+.button-rewrite{
+  width: 90vw;
+  background: #e91e63;
+  height: 10vw;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.customer{
+  position: fixed;
+  bottom: 50px;
+  right: 0;
+  background: #e91e63;
+  min-width: 20vw;
+  height: 8vw;
+  font-size: 16px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8vw 0 0 0;
+}
+.share{
+  position: fixed;
+  bottom: 50px;
+  left: 0;
+  background: #e91e63;
+  min-width: 20vw;
+  height: 8vw;
+  font-size: 16px;
+  display: flex;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 8vw 0 0;
+}
+.share::after{
+  border: none;
+}
+.customer::after{
+  border: none;
+}
+</style>
+<template>
+  <view class="container">
+    <view class="calendar">
+      <view class="calendar-title">
+        <view class="forward" @tap="MonthForward">
+          <i class="fa fa-caret-left"/>
+        </view>
+        <view class="year">{{calendar.date.year}}-{{calendar.date.month}}</view>
+        <view class="after" @tap="MonthAfter"> 
+          <i class="fa fa-caret-right" />
+        </view>
+      </view>
+      <view class="calendar-subtitle">
+        <view class="calendar-subtitle-items">日</view>
+        <view class="calendar-subtitle-items">一</view>
+        <view class="calendar-subtitle-items">二</view>
+        <view class="calendar-subtitle-items">三</view>
+        <view class="calendar-subtitle-items">四</view>
+        <view class="calendar-subtitle-items">五</view>
+        <view class="calendar-subtitle-items">六</view>
+      </view>
+      <view class="calendar-content">
+        <repeat for="{{calendar.list}}" key="calendar" index="index" item="item">
+          <view class="calendar-content-items" style="color:{{item.month == calendar.date.month? 'black':'#9e9e9e'}}; background:{{item.date == calendar.date.date? 'pink':'none'}};">
+            <view class="date">{{item.date}}</view>
+            <view class="calendar-content-items-subtitle" style="color:{{item.color}};">{{item.subtitle}}</view>
+          </view>
+        </repeat>
+      </view>
+    </view>
+
+    <view class="tips">您的月经日期为:{{MenstruationInfo.start.year}}-{{MenstruationInfo.start.month}}-{{MenstruationInfo.start.date}},行经期为:{{MenstruationInfo.duration}}天,月经周期为:{{MenstruationInfo.cycle}}天;</view>
+    <view class="button-rewrite" @tap="Rewrite">重置信息</view>
+    
+
+    <button class="share" open-type="share">分享朋友</button>
+    <button class="customer" open-type='contact'>联系客服</button>
+    <tabbar :tabbar="tabbar"/>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  import tabbar from '../components/tabbar'
+  
+  import cache from '../lib/cache.js'
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '我的安全期'
+    }
+    components = {
+      tabbar: tabbar
+    }
+    data = {
+      MenstruationInfo: null,
+      calendar: null,
+      tabbar: {
+        color: '#e91e63',
+        list: [
+          {
+            icon: 'fa-home',
+            title: '首页',
+            path: 'index',
+            selected: true
+          },
+          {
+            icon: 'fa-briefcase',
+            title: '工具',
+            path: 'tools',
+            selected: false
+          }
+        ]
+      }
+    }
+    methods = {
+      Rewrite () {
+        wx.navigateTo({
+          url: 'step/step-1'
+        })
+      },
+      MonthForward () {
+        let DateNow = this.data.calendar.date
+        let MenstruationInfo = this.data.MenstruationInfo
+        let start = MenstruationInfo.start
+        if (DateNow.month > 1) {
+          DateNow.month = DateNow.month - 1
+        } else {
+          DateNow.year = DateNow.year - 1
+          DateNow.month = 12
+        }
+        start = new Date(start.year, start.month - 1, start.date - MenstruationInfo.cycle)
+        MenstruationInfo.start = {
+          year: start.getFullYear(),
+          month: start.getMonth() + 1,
+          date: start.getDate()
+        }
+        this.Calendar(DateNow, MenstruationInfo)
+      },
+      MonthAfter () {
+        let DateNow = this.data.calendar.date
+        let MenstruationInfo = this.data.MenstruationInfo
+        let start = MenstruationInfo.start
+        if (DateNow.month < 12) {
+          DateNow.month = DateNow.month + 1
+        } else {
+          DateNow.year = DateNow.year + 1
+          DateNow.month = 1
+        }
+        start = new Date(start.year, start.month - 1, start.date + MenstruationInfo.cycle)
+        MenstruationInfo.start = {
+          year: start.getFullYear(),
+          month: start.getMonth() + 1,
+          date: start.getDate()
+        }
+        this.Calendar(DateNow, MenstruationInfo)
+      }
+    }
+    getEasyPregnancy (SpawningDay) {
+      let EasyPregnancy = []
+      for (let index = 0; index < SpawningDay.length; index++) {
+        for (let i = 1; i < 6; i++) {
+          let date = new Date(SpawningDay[index].year, SpawningDay[index].month - 1, SpawningDay[index].date - i)
+          EasyPregnancy.push({
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            date: date.getDate(),
+            day: date.getDay()
+          })
+        }
+        for (let i = 1; i < 5; i++) {
+          let date = new Date(SpawningDay[index].year, SpawningDay[index].month - 1, SpawningDay[index].date + i)
+          EasyPregnancy.push({
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            date: date.getDate(),
+            day: date.getDay()
+          })
+        }
+      }
+      return EasyPregnancy
+    }
+    getSpawningDay (MenstruationInfo) {
+      let date0 = new Date(MenstruationInfo.start.year, MenstruationInfo.start.month - 1, MenstruationInfo.start.date - 15)
+      let date1 = new Date(MenstruationInfo.start.year, MenstruationInfo.start.month - 1, MenstruationInfo.start.date + MenstruationInfo.cycle - 15)
+      let SpawningDay = []
+      SpawningDay.push({
+        year: date0.getFullYear(),
+        month: date0.getMonth() + 1,
+        date: date0.getDate(),
+        day: date0.getDay()
+      })
+      SpawningDay.push({
+        year: date1.getFullYear(),
+        month: date1.getMonth() + 1,
+        date: date1.getDate(),
+        day: date1.getDay()
+      })
+      return SpawningDay
+    }
+    getMenstruation (MenstruationInfo) {
+      let Menstruation = []
+
+      for (let index = 0; index < MenstruationInfo.duration; index++) {
+        let date = new Date(MenstruationInfo.start.year, MenstruationInfo.start.month - 1, MenstruationInfo.start.date + index)
+        Menstruation[index] = {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          date: date.getDate(),
+          day: date.getDay()
+        }
+      }
+      console.log(Menstruation)
+      return Menstruation
+    }
+    IsMenstruation (Menstruation, date) {
+      for (let index = 0; index < Menstruation.length; index++) {
+        if (Menstruation[index].year === date.year && Menstruation[index].month === date.month && Menstruation[index].date === date.date) {
+          return true
+        }
+      }
+      return false
+    }
+    IsSpawningDay (SpawningDay, date) {
+      for (let index = 0; index < SpawningDay.length; index++) {
+        if (SpawningDay[index].year === date.year && SpawningDay[index].month === date.month && SpawningDay[index].date === date.date) {
+          return true
+        }
+      }
+      return false
+    }
+    IsEasyPregnancy (EasyPregnancy, date) {
+      for (let index = 0; index < EasyPregnancy.length; index++) {
+        if (EasyPregnancy[index].year === date.year && EasyPregnancy[index].month === date.month && EasyPregnancy[index].date === date.date) {
+          return true
+        }
+      }
+      return false
+    }
+    Calendar (DateNow, MenstruationInfo) {
+      let Menstruation = this.getMenstruation(MenstruationInfo)
+      let SpawningDay = this.getSpawningDay(MenstruationInfo)
+      let EasyPregnancy = this.getEasyPregnancy(SpawningDay)
+      let FirstDate = new Date(DateNow.year, DateNow.month - 1, 1)
+      FirstDate = {
+        year: FirstDate.getFullYear(),
+        month: FirstDate.getMonth() + 1,
+        date: FirstDate.getDate(),
+        day: FirstDate.getDay()
+      }
+      let list = new Array(42)
+      for (let index = 0; index < list.length; index++) {
+        let date = new Date(FirstDate.year, FirstDate.month - 1, index + 1 - FirstDate.day)
+        list[index] = {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          date: date.getDate(),
+          day: date.getDay()
+        }
+      }
+      for (let index = 0; index < list.length; index++) {
+        let IsMen = this.IsMenstruation(Menstruation, list[index])
+        let IsSpd = this.IsSpawningDay(SpawningDay, list[index])
+        let IsEsp = this.IsEasyPregnancy(EasyPregnancy, list[index])
+        if (IsMen === true) {
+          list[index]['subtitle'] = '月经期'
+          list[index]['color'] = '#f44336'
+        } else if (IsSpd === true) {
+          list[index]['subtitle'] = '排卵日'
+          list[index]['color'] = '#e91e63'
+        } else if (IsEsp === true) {
+          list[index]['subtitle'] = '易孕期'
+          list[index]['color'] = '#ff9800'
+        } else {
+          list[index]['subtitle'] = '安全期'
+          list[index]['color'] = '#4caf50'
+        }
+      }
+      this.calendar = {
+        date: {
+          year: DateNow.year,
+          month: DateNow.month,
+          date: DateNow.date
+        },
+        list: list
+      }
+      console.log(list)
+    }
+    MenstruationInfoCheck (MenstruationInfo, date) {
+      if (MenstruationInfo.start.year === date.year && MenstruationInfo.start.month === date.month) {
+        return MenstruationInfo
+      } else if (MenstruationInfo.start.year < date.year || MenstruationInfo.start.month < date.month) {
+        let date = new Date(MenstruationInfo.start.year, MenstruationInfo.start.month - 1, MenstruationInfo.start.date + MenstruationInfo.cycle)
+        MenstruationInfo['start'] = {
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          date: date.getDate()
+        }
+        cache.set('menstruation-info', MenstruationInfo)
+        return MenstruationInfo
+      }
+    }
+    onLoad () {
+      wx.hideTabBar()
+    }
+    onShow () {
+      let DateNow = new Date()
+      DateNow = {
+        year: DateNow.getFullYear(),
+        month: DateNow.getMonth() + 1,
+        date: DateNow.getDate(),
+        day: DateNow.getDay()
+      }
+      let MenstruationInfo = cache.get('menstruation-info')
+      if (MenstruationInfo === false) {
+        wx.navigateTo({
+          url: 'step/step-1'
+        })
+      }
+      MenstruationInfo = this.MenstruationInfoCheck(MenstruationInfo, DateNow)
+      this.MenstruationInfo = MenstruationInfo
+      this.Calendar(DateNow, MenstruationInfo)
+    }
+  }
+</script>

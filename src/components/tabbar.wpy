@@ -1,0 +1,83 @@
+<style>
+  @import "../fonts/awesome.wxss";
+  .tabbar{
+    width: 100%;
+    height: 50px;
+    position: fixed;
+    bottom: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16),0 2px 4px rgba(0, 0, 0, 0.23);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: white;
+  }
+  .tabbar-items{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 50px;
+    justify-content: center;
+  }
+  .tabar-items-icon i{
+    font-size: 25px;
+  }
+  .tabar-items-title{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+</style>
+<template>
+    <view class="tabbar">
+      <repeat for="{{tabbar.list}}" key="list" index="index" item="item">
+        <view class="tabar-items" @tap="tap" data-id="{{index}}" style="color:{{item.selected? tabbar.color:'#9e9e9e'}};">
+          <view class="tabar-items-icon"><i class="fa {{item.icon}}"></i></view>
+          <view class="tabar-items-title">{{item.title}}</view>
+        </view>
+      </repeat>
+    </view>
+</template>
+<script>
+  import wepy from 'wepy'
+  export default class Tabbar extends wepy.component {
+    props = {
+      tabbar: {
+        type: Object,
+        twoWay: true,
+        default: {
+          color: '#e91e63',
+          list: [
+            {
+              icon: 'fa-home',
+              title: '首页',
+              path: 'index',
+              selected: true
+            },
+            {
+              icon: 'fa-briefcase',
+              title: '工具',
+              path: 'tools',
+              selected: false
+            }
+          ]
+        }
+      }
+    }
+    data = {}
+    methods = {
+      tap (e) {
+        let selectedId = e.currentTarget.dataset.id
+        let tabbar = this.data.tabbar
+        if (tabbar.list[selectedId].selected === false) {
+          wx.switchTab({
+            url: tabbar.list[selectedId].path
+          })
+        }
+      }
+    }
+    onLoad () {
+      console.log('component tabbar resolved')
+    }
+  }
+</script>
