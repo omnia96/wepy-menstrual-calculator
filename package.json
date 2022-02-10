@@ -17,7 +17,7 @@
   "author": "omnia96 <dongjun1997@outlook.com>",
   "license": "MIT",
   "dependencies": {
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-promise": "^0.5.3",
